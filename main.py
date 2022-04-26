@@ -8,7 +8,7 @@ WIN = pygame.display.set_mode((WIDTH,HEIGHT))
 BLACK=(0,0,0)
 WHITE=(255,255,255)
 PADDLE_W, PADDLE_H=20,100
-BALL_R=10
+BALL_R=7
 class Pong:
     window = pygame.display.set_mode((WIDTH,HEIGHT))
     pygame.init()
@@ -30,9 +30,8 @@ class Pong:
             #get the keys when we pressed    
             keys=pygame.key.get_pressed()
             self.handle_paddle_movement(keys,left_paddle,right_paddle)
-
             ball.move()
-
+            self.handle_collision(ball,left_paddle,right_paddle)
         pygame.quit()
     
     def draw(self,win, paddles,ball):
@@ -47,7 +46,7 @@ class Pong:
             pygame.draw.rect(self.window,WHITE,(WIDTH//2-5,i,10,HEIGHT//20))
         #draw the ball
         ball.draw(self.window)
-        
+
         pygame.display.update()
 
 
@@ -63,5 +62,33 @@ class Pong:
         if keys[pygame.K_DOWN] and (right_paddle.y + right_paddle.VEL + right_paddle.h<=HEIGHT):
             right_paddle.move(up=False)
 
+    def handle_collision(self,ball, left_paddle, right_paddle):
+        #handling the collision of the ball with the bottom and the ceilling
+        if ball.y + ball.r>=HEIGHT:
+            ball.y_vel*=-1
+        elif ball.y +ball.r<=0:
+            ball.y_vel*=-1
+        #handling the collision with the 2 paddles
+        if ball.x_vel < 0:
+            #left paddle
+            if ball.y >= left_paddle.y and ball.y <= left_paddle.y + left_paddle.h:
+                if ball.x - ball.r <= left_paddle.x + left_paddle.w:
+                    ball.x_vel *= -1
+                    midle_y= left_paddle.y+left_paddle.h/2
+                    diff_in_y=  midle_y - ball.y
+                    reduction_factor=(left_paddle.h/2)/ball.MAX_VEL
+                    y_vel= diff_in_y/reduction_factor
+                    ball.y_vel=-1 * y_vel
+
+        else:
+            #right paddle
+            if ball.y >= right_paddle.y and ball.y <= right_paddle.y + right_paddle.h:
+                if ball.x + ball.r >= right_paddle.x:
+                    ball.x_vel*=-1
+                    midle_y = right_paddle.y + right_paddle.h/2
+                    diff_in_y = midle_y - ball.y
+                    reduction_factor = (right_paddle.h / 2) / ball.MAX_VEL
+                    y_vel = diff_in_y / reduction_factor
+                    ball.y_vel = -1 * y_vel
 if __name__=="__main__":
     g=Pong()
