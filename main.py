@@ -1,6 +1,7 @@
 import pygame
 from paddle import Paddle
 from ball import Ball
+
 WIDTH,HEIGHT=700,500
 FPS=60
 clock= pygame.time.Clock()
@@ -8,18 +9,25 @@ WIN = pygame.display.set_mode((WIDTH,HEIGHT))
 BLACK=(0,0,0)
 WHITE=(255,255,255)
 PADDLE_W, PADDLE_H=20,100
+
 BALL_R=7
+
+
 class Pong:
-    window = pygame.display.set_mode((WIDTH,HEIGHT))
-    pygame.init()
-    pygame.display.set_caption("Pong game")
     def __init__(self):
+        pygame.init()
+        self.window = pygame.display.set_mode((WIDTH,HEIGHT))
+        self.SCORE_FONT = pygame.font.SysFont("comicsans", 50)
+        pygame.display.set_caption("Pong game")
         run=True
         #initate 2 paddle
         left_paddle=Paddle(10, HEIGHT//2-PADDLE_H//2,PADDLE_W,PADDLE_H )
         right_paddle=Paddle(WIDTH-10-PADDLE_W, HEIGHT//2-PADDLE_H//2,PADDLE_W,PADDLE_H )
         #initate the ball
         ball=Ball(WIDTH//2,HEIGHT//2,BALL_R)
+        #initiate the scores
+        self.left_score = 0
+        self.right_score = 0
         while run:
             clock.tick(FPS)
             self.draw(self.window,[left_paddle,right_paddle],ball)
@@ -32,10 +40,24 @@ class Pong:
             self.handle_paddle_movement(keys,left_paddle,right_paddle)
             ball.move()
             self.handle_collision(ball,left_paddle,right_paddle)
+            #implement Score
+            if ball.x<0:
+                self.right_score+=1
+                ball.reset()
+            elif ball.x>=WIDTH:
+                self.left_score+=1
+                ball.reset()
+
         pygame.quit()
     
     def draw(self,win, paddles,ball):
+
         win.fill(BLACK)
+        #draw the scores
+        left_score_text = self.SCORE_FONT.render(f"{self.left_score}", 1, WHITE)
+        right_score_text = self.SCORE_FONT.render(f"{self.right_score}", 1, WHITE)
+        win.blit(left_score_text,(WIDTH//4-left_score_text.get_width()//2,20))
+        win.blit(right_score_text,(WIDTH* (3/4)-right_score_text.get_width()//2,20))
         #draw the paddle
         for paddle in paddles:
             paddle.draw(self.window)
@@ -66,7 +88,7 @@ class Pong:
         #handling the collision of the ball with the bottom and the ceilling
         if ball.y + ball.r>=HEIGHT:
             ball.y_vel*=-1
-        elif ball.y +ball.r<=0:
+        elif ball.y +ball.r<=10:
             ball.y_vel*=-1
         #handling the collision with the 2 paddles
         if ball.x_vel < 0:
