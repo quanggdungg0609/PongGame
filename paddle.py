@@ -5,8 +5,8 @@ class Paddle:
     VEL = 4 #Velocity
     COLOR = (255,255,255)
     def __init__(self,x,y,w,h):
-        self.x=x
-        self.y=y
+        self.x=self.original_x=x
+        self.y=self.original_y=y
         self.w=w
         self.h=h
     #draw the paddle on the screen

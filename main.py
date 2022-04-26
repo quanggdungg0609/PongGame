@@ -2,14 +2,14 @@ import pygame
 from paddle import Paddle
 from ball import Ball
 
-WIDTH,HEIGHT=700,500
-FPS=60
-clock= pygame.time.Clock()
+WIDTH,HEIGHT = 700,500
+FPS = 60
+clock = pygame.time.Clock()
 WIN = pygame.display.set_mode((WIDTH,HEIGHT))
-BLACK=(0,0,0)
-WHITE=(255,255,255)
+BLACK = (0,0,0)
+WHITE = (255,255,255)
 PADDLE_W, PADDLE_H=20,100
-
+WIN_SCORE = 10
 BALL_R=7
 
 
@@ -47,7 +47,25 @@ class Pong:
             elif ball.x>=WIDTH:
                 self.left_score+=1
                 ball.reset()
-
+            #win condition
+            won=False
+            if self.left_score>=WIN_SCORE:
+                won=True
+                win_text="Left player won"
+            elif self.right_score>=WIN_SCORE:
+                won=True
+                win_text="Right player won"
+            if won:
+                text=self.SCORE_FONT.render(win_text,1,WHITE)
+                self.window.blit(text,(WIDTH//2-text.get_width()//2, HEIGHT//2 - text.get_height()//2))
+                pygame.display.update()
+                pygame.time.delay(50000)
+                #reset everything
+                ball.reset()
+                left_paddle.reset()
+                right_paddle.reset()
+                self.left_score=0
+                self.right_score=0
         pygame.quit()
     
     def draw(self,win, paddles,ball):
